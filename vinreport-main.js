@@ -1,3 +1,4 @@
+addBodyHtml()
 vinreport();
 
 
@@ -94,6 +95,7 @@ function vinReportSignInBtn(){
         } else {
           localStorage.setItem("vinreport-token", data.token)
           document.getElementById("vinreport-account-message").innerHTML = '<span style="color:green"> Sucessfully logged in </span>  ' 
+          vinreport();
         }
       })
    
@@ -107,7 +109,6 @@ function getMileage() {
 }
 
 function vinreport() {
-  addBodyHtml()
   const year_make_model = document.querySelector(".vehicle-header h1").innerHTML.split(" ")
   const year = year_make_model[0]
   const make = year_make_model[1]

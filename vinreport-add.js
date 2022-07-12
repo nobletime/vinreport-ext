@@ -1,23 +1,64 @@
 function vinReportDomain() { return 'https://autocheckreport.azurewebsites.net' }
-function getToken(){  return localStorage.getItem("vinreport-token")}
+function getToken() {
+  const token = localStorage.getItem("vinreport-token")
+  if (token == null) {
+    document.getElementById("vinreport-account-message").innerHTML = "Your session expired! Please login to your VinReport account."
+    return document.querySelectorAll("#vinreport-body .tablinks")[1].click()
+  }
+  return token
+}
 
 
 function getVIN() {
+  let vinSpan;
   //const vin = Array.from(document.querySelectorAll(".tile-body .data-list__item .data-list__label")).findIndex(e => e.innerHTML.indexOf("VIN") > -1)
-  if (!document.getElementById("VIN_VehInfo")){
+  if (document.getElementById("VIN_VehInfo") && document.getElementById("VIN_VehInfo").innerHTML.indexOf("*") > -1) {
     document.getElementById("vinreport-account-message").innerHTML = "You have to be logged into your IAAI buyer account and have a VinReport account to use this!"
-return document.querySelectorAll("#vinreport-body .tablinks")[1].click()
-}
+    return document.querySelectorAll("#vinreport-body .tablinks")[1].click()
+  }
 
-  if (document.getElementById("VIN_VehInfo").innerHTML != '')
-    return document.getElementById("VIN_VehInfo").innerHTML
+  if (!document.getElementById("VIN_VehInfo")) {
+    if (document.getElementById("VIN_vehicleStats1")) {
+      vinSpan = document.getElementById("VIN_vehicleStats1").parentNode.getElementsByTagName("span")[1].innerHTML.replaceAll(" ", "")
 
-  if (document.getElementById("VIN_vehicleStats1")) {
-    const vinSpan = document.getElementById("VIN_vehicleStats1").parentNode.getElementsByTagName("span")[1].innerHTML
-    if (vinSpan.indexOf(" ") > -1)
-      return vinSpan.split(" ")[0]
-  else 
-  return vinSpan.split("(")[0]
+      if (vinSpan.indexOf("*") > -1) {
+        document.getElementById("vinreport-account-message").innerHTML = "You have to be logged into your IAAI buyer account and have a VinReport account to use this!"
+        return document.querySelectorAll("#vinreport-body .tablinks")[1].click()
+      }
+
+      if (vinSpan.indexOf("(") > -1)
+        return vinSpan.split("(")[0]
+      else
+        return vinSpan
+
+    }
+  } else {
+    if (document.getElementById("VIN_VehInfo").innerHTML.trim() == '') {
+      vinSpan = document.getElementById("VIN_VehInfo").parentElement.querySelectorAll("span")[1].textContent.replaceAll(" ", "")
+
+      if (vinSpan.indexOf("*") > -1) {
+        document.getElementById("vinreport-account-message").innerHTML = "You have to be logged into your IAAI buyer account and have a VinReport account to use this!"
+        return document.querySelectorAll("#vinreport-body .tablinks")[1].click()
+      }
+
+      if (vinSpan.indexOf("(") > -1) {
+        return vinSpan.split("(")[0]
+      } else {
+        return vinSpan
+      }
+    } else {
+      vinSpan = document.getElementById("VIN_VehInfo").innerHTML.replaceAll(" ", "")
+
+      if (vinSpan.indexOf("*") > -1) {
+        document.getElementById("vinreport-account-message").innerHTML = "You have to be logged into your IAAI buyer account and have a VinReport account to use this!"
+        return document.querySelectorAll("#vinreport-body .tablinks")[1].click()
+      }
+
+      if (vinSpan.indexOf("(") > -1)
+        return vinSpan.split("(")[0]
+      else
+        return vinSpan
+    }
 
   }
 }
@@ -55,6 +96,7 @@ function getCarTrim(vin) {
     }).then(response => response.json())
     .then(trims => {
 
+      if (trims.length == 0) return false;
       let select = '<select id="trimstyle" class="form-select" aria-label="Default select example" style="border: 1px solid green; font-size:15px;  width: 100%; text-overflow: ellipsis; ">'
       const firsttrim = trims[0].styleId
 
@@ -123,25 +165,25 @@ function getAppraisal(styleid, mileage) {
     });
 }
 
-function vinreport_delAuctionHistory(e){
+function vinreport_delAuctionHistory(e) {
   // ${vinReportDomain()}/delete-car-auctionhistory?id=${carbody.id}
-const id =e.currentTarget.id.substring(e.currentTarget.id.lastIndexOf("-")+1)
-let elem = e.currentTarget;
+  const id = e.currentTarget.id.substring(e.currentTarget.id.lastIndexOf("-") + 1)
+  let elem = e.currentTarget;
 
- fetch(`${vinReportDomain()}/del-auctionhistory-ext`,
- {
-  method: "POST",
-  body: JSON.stringify({id:id}),
-  headers: {
-    'Content-Type': "application/json",
-    'x-vinreport-token': getToken()
-  }
- }).then(response => response.json())
- .then(data => {
-  if (data.message == 'deleted')
-  elem.parentElement.parentElement.remove()
+  fetch(`${vinReportDomain()}/del-auctionhistory-ext`,
+    {
+      method: "POST",
+      body: JSON.stringify({ id: id }),
+      headers: {
+        'Content-Type': "application/json",
+        'x-vinreport-token': getToken()
+      }
+    }).then(response => response.json())
+    .then(data => {
+      if (data.message == 'deleted')
+        elem.parentElement.parentElement.remove()
 
- })
+    })
 
 }
 
@@ -149,8 +191,8 @@ function vinreport_addAuctionHistory() {
 
   const auctionDateTag = Array.from(document.querySelectorAll(".data-list.data-list--details .data-list__item .data-list__label")).find(e => e.innerHTML.indexOf("Auction Date") > -1)
   if (!auctionDateTag.parentElement.querySelector("a")) {
-   document.getElementById("vinreport-report-message").innerHTML = "Vehicle cannot be added. Only vehicles with an assigned auction dates can be added to final bid list"
-   document.querySelector("#vinreport-reportTab").click();
+    document.getElementById("vinreport-report-message").innerHTML = "Vehicle cannot be added. Only vehicles with an assigned auction dates can be added to final bid list"
+    document.querySelector("#vinreport-reportTab").click();
     return false;
   }
   const auction_date = new Date(auctionDateTag.parentElement.querySelector("a").textContent.split(",")[0] + " " + new Date().getFullYear())
@@ -161,9 +203,9 @@ function vinreport_addAuctionHistory() {
     'thumbnail': document.querySelectorAll("#spacedthumbs1strow img")[0].src,
     'stockNum': document.querySelectorAll(".tile-body .data-list__item .data-list__value")[0].innerText,
     'carname': document.querySelector(".vehicle-header h1").innerHTML,
-    'url' : window.location.href,
+    'url': window.location.href,
     'mileage': getMileage(),
-    'auction_date' : auction_date
+    'auction_date': auction_date
   }
 
 
@@ -207,7 +249,7 @@ function vinreport_addAuctionHistory() {
 
             <input type="hidden" id="hdnItemIdForWatch" value="44843957">
             
-        <a href="${ car.url}">
+        <a href="${car.url}">
        
                     <img data-original="${car.thumbnail}" height="72" width="96" onerror="this.onerror = null; this.src = '../Images/noimageavl.gif';" class="lazy" src=" ${car.thumbnail}" style="display: inline;">
         </a>
@@ -218,7 +260,7 @@ function vinreport_addAuctionHistory() {
     </div>
     <div class="list-item row-space">
         <ul>
-                <li><a href="${ car.url}" name="32877167">${car.carname}</a></li>
+                <li><a href="${car.url}" name="32877167">${car.carname}</a></li>
             
             <li>
                 Stock#: ${car.stockNum}
@@ -243,7 +285,7 @@ function vinreport_addAuctionHistory() {
         document.getElementById("vinreport-auction-history").innerHTML = header
         document.getElementById("auction-history-header").innerHTML = document.getElementById("auction-history-header").innerHTML + car_row
       }
-    
+
       document.querySelector(`#vinreport-body #delete-car-${car.id}`).onclick = vinreport_delAuctionHistory(car.id)
 
 
@@ -324,9 +366,9 @@ function vinreport_getAuctionHistory() {
       }
 
       for (const carbody of data) {
-      document.getElementById(`delete-car-${carbody.id}`).onclick = vinreport_delAuctionHistory
+        document.getElementById(`delete-car-${carbody.id}`).onclick = vinreport_delAuctionHistory
       }
-   
+
     })
 }
 

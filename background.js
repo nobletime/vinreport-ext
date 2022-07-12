@@ -1,5 +1,5 @@
 
-const vinReportDomain = 'http://localhost:3030'
+const vinReportDomain = 'https://autocheckreport.azurewebsites.net'
 
 // chrome.browserAction.onClicked.addListener(function(activeTab){
 //     var newURL = "http://stackoverflow.com/";
