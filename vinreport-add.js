@@ -162,6 +162,7 @@ function getAppraisal(styleid, mileage) {
       document.getElementById('retail-value').innerHTML = `$${retail.toLocaleString()}`
       document.getElementById('private-party').innerHTML = `$${privateparty.toLocaleString()}`
       document.getElementById('trade-in').innerHTML = `$${tradein.toLocaleString()}`
+      document.getElementById("vinreport-loading").style.display ="none"
     });
 }
 
@@ -240,6 +241,8 @@ function vinreport_addAuctionHistory() {
       }
     }).then(response => response.json())
     .then(data => {
+      vinreport_getAuctionHistory()
+return
       const car = data.car;
 
       const car_row = `
@@ -277,7 +280,6 @@ function vinreport_addAuctionHistory() {
 </div> 
 `
 
-
       if (header == "") {
         document.getElementById("auction-history-header").innerHTML = document.getElementById("auction-history-header").innerHTML + car_row
 
@@ -286,7 +288,7 @@ function vinreport_addAuctionHistory() {
         document.getElementById("auction-history-header").innerHTML = document.getElementById("auction-history-header").innerHTML + car_row
       }
 
-      document.querySelector(`#vinreport-body #delete-car-${car.id}`).onclick = vinreport_delAuctionHistory(car.id)
+      document.getElementById(`delete-car-${car.id}`).onclick = vinreport_delAuctionHistory
 
 
     })

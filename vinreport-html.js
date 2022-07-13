@@ -37,6 +37,7 @@ function addBodyHtml(){
   </li>
   <li class="data-list__item">
       <span class="data-list__label">Retail Value:</span>
+      <img id="vinreport-loading" alt="loading-img" style="width:100px">
       <span class="data-list__value" id="retail-value"></span>
   </li>
   
@@ -95,6 +96,7 @@ target.insertAdjacentHTML('beforebegin', vinreport);
  document.getElementById("vinReportBtn").onclick = vinReportBtn 
  document.getElementById("vinReportSignInBtn").onclick = vinReportSignInBtn 
  document.getElementById("vinreport-logo").src = chrome.runtime.getURL("images/page-logo.png");
+ document.getElementById("vinreport-loading").src = chrome.runtime.getURL("images/loading.gif");
 
 document.querySelectorAll("#vinreport-body .tab .tablinks")[0].addEventListener("click", function(e) {
     e.preventDefault();

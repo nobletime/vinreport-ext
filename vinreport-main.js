@@ -2,8 +2,6 @@ addBodyHtml()
 vinreport();
 
 
-
-
 function vinReportBtn() {
 
 
